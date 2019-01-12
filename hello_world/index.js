@@ -1,7 +1,8 @@
-
-const axios = require('axios')
-const url = 'http://checkip.amazonaws.com/';
+// const axios = require("axios");
+// const url = "http://checkip.amazonaws.com/";
 let response;
+const cors = require("./cors-util");
+const config = require("./cors-config.json");
 
 /**
  *
@@ -18,7 +19,7 @@ let response;
  * @param {Object} event.body - A JSON string of the request payload.
  * @param {boolean} event.body.isBase64Encoded - A boolean flag to indicate if the applicable request payload is Base64-encode
  *
- * Context doc: https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html 
+ * Context doc: https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html
  * @param {Object} context
  * @param {string} context.logGroupName - Cloudwatch Log Group name
  * @param {string} context.logStreamName - Cloudwatch Log stream name.
@@ -35,22 +36,38 @@ let response;
  * @returns {string} object.statusCode - HTTP Status Code to be returned to the client
  * @returns {Object} object.headers - HTTP Headers to be returned
  * @returns {Object} object.body - JSON Payload to be returned
- * 
+ *
  */
 exports.lambdaHandler = async (event, context) => {
-    try {
-        const ret = await axios(url);
-        response = {
-            'statusCode': 200,
-            'body': JSON.stringify({
-                message: 'hello world',
-                location: ret.data.trim()
-            })
-        }
-    } catch (err) {
-        console.log(err);
-        return err;
-    }
+  console.log("call reached");
 
-    return response
+  //const origin = cors.getOriginFromEvent(event);
+
+  var responseBody = {
+    key3: "value3",
+    key2: "value2",
+    key1: "value1"
+  };
+
+  try {
+    response = {
+      statusCode: 200,
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify(responseBody),
+      isBase64Encoded: false
+    };
+  } catch (err) {
+    console.log(err);
+    // return err;
+
+    let error = {
+      statusCode: 404,
+      headers: { "Content-Type": "text/plain" }, // not sure here
+      body: new Error(JSON.stringify(err))
+    };
+  }
+
+  return response;
 };
